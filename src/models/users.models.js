@@ -85,6 +85,10 @@ const userschema = mongoose.Schema(
         isverified:{
             type:Boolean,
             default:false,
+        },
+        avatar:{
+            type:String,
+            required:true,
         }
     },
     {
