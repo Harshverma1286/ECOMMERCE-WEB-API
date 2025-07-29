@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const userschema = mongoose.Schema(
     {
-        name:{
+        username:{
             type:String,
             required:true,
             lowercase:true,
@@ -96,7 +96,7 @@ const userschema = mongoose.Schema(
     }
 );
 
-userschema.pre('save',async function(req,res,next){
+userschema.pre('save',async function(next){
     if(!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password,10);
     next();
