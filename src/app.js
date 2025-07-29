@@ -18,6 +18,11 @@ app.use(cookieparser());
 
 app.use(express.static("public"));
 
+const userrouter = require("./routes/user.routes");
+
+
+app.use("/api/v1/users",userrouter);
+
 
 module.exports = app;
 
