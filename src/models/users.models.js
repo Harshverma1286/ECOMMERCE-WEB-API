@@ -89,6 +89,9 @@ const userschema = mongoose.Schema(
         avatar:{
             type:String,
             required:true,
+        },
+        refreshtoken:{
+            type:String
         }
     },
     {
