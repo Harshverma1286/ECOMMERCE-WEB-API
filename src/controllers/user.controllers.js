@@ -174,5 +174,27 @@ const loginuser = asynchandler(async(req,res)=>{
     
 });
 
+const logoutuser = asynchandler(async(req,res)=>{
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset:{
+                refreshtoken:1
+            }
+        }
+    );
 
-module.exports = {registeruser,loginuser};
+    const options = {
+        httpOnly: true,
+        secure: true,
+    }
+
+    return res.status(200).
+    clearCookie("accesstoken",options)
+    .clearCookie("refreshtoken",options).json(
+        new apiresponse(200,{},"user logged out successfully")
+    )
+});
+
+
+module.exports = {registeruser,loginuser,logoutuser};
