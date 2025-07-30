@@ -11,6 +11,34 @@ const User = require("../models/users.models");
 const uploadoncloudinary = require("../utils/cloudinary");
 const { use } = require('react');
 
+const generateaccessandrefreshtoken = async(userid)=>{
+    try {
+        if(!userid){
+            throw new apierror(400,"userid is required");
+        }
+    
+        const user = await User.findById(userid);
+    
+        if(!user){
+            throw new apierror(400,"user does not exist");
+        }
+    
+    
+    
+        const accesstoken = await user.generateaccesstoken();
+    
+        const refreshtoken = await user.generaterefreshtoken();
+    
+        user.refreshtoken = refreshtoken;
+    
+        await user.save({ validateBeforeSave: false });
+    
+        return {accesstoken,refreshtoken};
+    } catch (error) {
+        throw new apierror(500,error.message || "something wentwrong while generating accesstoken and refreshtoken");
+    }
+}
+
 const registeruser = asynchandler(async(req,res)=>{
     const {username,email,fullname,password,phone,address} = req.body;
 
@@ -94,7 +122,57 @@ const registeruser = asynchandler(async(req,res)=>{
      return res.status(200).json(
         new apiresponse(200,createduser,"user created successfully")
      );
-})
+});
+
+const loginuser = asynchandler(async(req,res)=>{
+    const{email,password} = req.body;
+
+    if(!email){
+        throw new apierror(400,"email is required ");
+    }
+
+    if(!password){
+        throw new apierror(400,"password is required");
+    }
+
+    const user = await User.findOne({email});
+
+    if(!user){
+        throw new apierror(400,"account does not exist !");
+    }
+
+    const ispassword = await user.ispasswordcorrect(password);
+
+    if(!ispassword){
+        throw new apierror(400,"invalid email or password");
+    }
+
+    const {accesstoken,refreshtoken} = await generateaccessandrefreshtoken(user._id);
+
+    if(!accesstoken){
+        throw new apierror(500,"accesstoken was not generated");
+    }
+
+    if(!refreshtoken){
+        throw new apierror(500,"refreshtoken was not generated");
+    }
+
+    const userfind = await User.findById(user._id).select("-password -refreshtoken");
+
+    const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict", 
+};
+
+    return res.status(200)
+    .cookie("accesstoken",accesstoken,options)
+    .cookie("refreshtoken",refreshtoken,options)
+    .json(
+        new apiresponse(200,{user:userfind,refreshtoken,accesstoken},"user logged in successfully")
+    );
+    
+});
 
 
-module.exports = {registeruser};
+module.exports = {registeruser,loginuser};
