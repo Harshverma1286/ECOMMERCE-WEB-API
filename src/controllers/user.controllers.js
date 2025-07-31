@@ -10,8 +10,25 @@ const User = require("../models/users.models");
 
 const jwt = require('jsonwebtoken');
 
-const uploadoncloudinary = require("../utils/cloudinary");
+const {uploadoncloudinary,deletefromcloudinary} = require("../utils/cloudinary");
 const { use } = require('react');
+
+const getPublicIdFromUrl = (url) => {
+    try {
+        const parts = url.split("/");
+
+        const fileWithExt = parts[parts.length - 1];
+
+        const fileName = fileWithExt.split(".")[0];
+
+        const folder = parts[parts.length - 2];
+
+        return `${folder}/${fileName}`;
+    } catch (error) {
+        console.error("Failed to extract public_id from URL:", error);
+        return null;
+    }
+};
 
 const generateaccessandrefreshtoken = async(userid)=>{
     try {
@@ -361,5 +378,47 @@ const updatepassword = asynchandler(async(req,res)=>{
     
 });
 
+const updateavatar = asynchandler(async(req,res)=>{
+    const avatarpath = req.file?.path;
 
-module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword};
+    if(!avatarpath){
+        throw new apierror(400,"kindly provide the avatar");
+    }
+
+    const user = await User.findById(req.user._id);
+
+    const oldavatar = user.avatar;
+
+    if(oldavatar){
+        const public_id = getPublicIdFromUrl(oldavatar);
+        await deletefromcloudinary(public_id);
+    }
+    const updateoncld = await uploadoncloudinary(avatarpath);
+
+    if(!updateoncld?.url){
+        throw new apierror(500,"cloudinary upload failed");
+    }
+
+    const updatetheavatar = await User.findByIdAndUpdate(
+        user._id,
+        {
+            $set:{
+                avatar:updateoncld.url,
+            }
+        },
+        {new:true},
+    );
+
+    if(!updatetheavatar){
+        throw new apierror(500,"something went wrong while updating");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,updatetheavatar?.url,"avatar updated successfully")
+    )
+
+
+});
+
+
+module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar};
