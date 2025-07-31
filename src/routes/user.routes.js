@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { registeruser, loginuser, logoutuser, generateaccesstoken, updateusernameemailandfullname, updatepassword, updateavatar } = require("../controllers/user.controllers");
+const { registeruser, loginuser, logoutuser, generateaccesstoken, updateusernameemailandfullname, updatepassword, updateavatar, addanewadress } = require("../controllers/user.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -30,6 +30,8 @@ router.route("/updateavatar").patch(
     authorization
     ,updateavatar);
 
+
+router.route("/addanewaddress").post(authorization,addanewadress);
 
 
 

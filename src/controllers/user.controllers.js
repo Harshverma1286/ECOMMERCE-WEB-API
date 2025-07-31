@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken');
 
 const {uploadoncloudinary,deletefromcloudinary} = require("../utils/cloudinary");
 const { use } = require('react');
+const { stat } = require('fs');
 
 const getPublicIdFromUrl = (url) => {
     try {
@@ -420,5 +421,48 @@ const updateavatar = asynchandler(async(req,res)=>{
 
 });
 
+const addanewadress = asynchandler(async(req,res)=>{
+    const {line1,line2,city,state,country,zip,isdefault} = req.body;
 
-module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar};
+    if(!line1 || !line2 || !city || !state || !country || !zip){
+        throw new apierror(400,"all the fields are required");
+    }
+
+
+    const user = await User.findById(req.user._id);
+
+    if(!user){
+        throw new apierror(400,"user not found");
+    }
+
+    if(isdefault){
+        user.address.forEach(
+            (addr)=>
+                addr.isdefault = false
+    );
+    }
+
+
+    user.address.push({
+        line1,
+        line2,
+        city,
+        state,
+        zip,
+        country,
+        type:"other",
+        isdefault: !!isdefault, 
+    });
+
+    await user.save();
+
+
+    return res.status(200).json(
+        new apiresponse(200,user.address,"address created and added successfully")
+    )
+
+
+
+});
+
+module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar,addanewadress};
