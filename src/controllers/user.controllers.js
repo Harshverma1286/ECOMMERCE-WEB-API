@@ -246,5 +246,87 @@ const generateaccesstoken = asynchandler(async(req,res)=>{
     }
 });
 
+const updateusernameemailandfullname = asynchandler(async(req,res)=>{
+    const {username,email,fullname} = req.body;
 
-module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken};
+    const updatefields = {};
+
+    if(username){
+        const existingUser = await User.findOne({ username });
+        if (existingUser && existingUser._id.toString() !== req.user._id.toString()) {
+            throw new apierror(400, "Username already in use");
+        }
+        updatefields.username = username.trim().toLowerCase()
+    };
+    if(email) updatefields.email = email.trim().toLowerCase();
+    if(fullname) updatefields.fullname = fullname.trim().toLowerCase();
+
+    if(Object.keys(updatefields).length==0){
+        throw new apierror(400,"kindly provide any respective field to update");
+    }
+
+    // if(updatefields.username){
+    //     const updateusername = await User.findByIdAndUpdate(
+    //         req.user._id,
+    //         {
+    //             $set:{
+    //                 username:updatefields.username.trim().toLowerCase(),
+    //             }
+    //         },
+    //         {new:true}
+    //     );
+
+    //     if(!updateusername){
+    //         throw new apierror(500,"something went wrong while updating username");
+    //     }
+    // }
+
+    // if(updatefields.email){
+    //     const updateemail = await User.findByIdAndUpdate(
+    //         req.user._id,
+    //         {
+    //             $set:{
+    //                 email:updatefields.email.trim().toLowerCase(),
+    //             }
+    //         },
+    //         {new:true}
+    //     );
+
+    //     if(!updateemail){
+    //         throw new apierror(400,"something went wrong while updating email");
+    //     }
+    // }
+
+    // if(updatefields.fullname){
+    //     const updatefullname = await User.findByIdAndUpdate(
+    //         req.user._id,
+    //         {
+    //             $set:{
+    //                 fullname:updatefields.fullname.trim(),
+    //             }
+    //         }
+    //     )
+
+    //     if(!updatefullname){
+    //         throw new apierror(400,"something went wrong while updating full name");
+    //     }
+    // }
+
+        const updatedUser = await User.findByIdAndUpdate(
+                req.user._id,
+                { $set: updatefields },
+                { new: true, runValidators: true }
+            ).select("-password -refreshtoken");
+
+        if (!updatedUser) {
+            throw new apierror(500, "Something went wrong while updating user");
+        }
+
+        return res.status(200).json(
+            new apiresponse(200, updatedUser, "Profile updated successfully")
+        );
+
+});
+
+
+module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname};
