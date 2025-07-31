@@ -8,6 +8,8 @@ const apiresponse = require('../utils/apiresponse');
 
 const User = require("../models/users.models");
 
+const jwt = require('jsonwebtoken');
+
 const uploadoncloudinary = require("../utils/cloudinary");
 const { use } = require('react');
 
@@ -196,5 +198,53 @@ const logoutuser = asynchandler(async(req,res)=>{
     )
 });
 
+const generateaccesstoken = asynchandler(async(req,res)=>{
+    const incomingrefreshtoken = req.cookies.refreshtoken || req.body.refreshtoken;
 
-module.exports = {registeruser,loginuser,logoutuser};
+    if(!incomingrefreshtoken){
+        throw new apierror(400,"refresh token not recieved");
+    }
+
+    try {
+        const decodetoken = jwt.verify(incomingrefreshtoken,process.env.REFRESH_TOKEN_SECRET);
+
+        if(!decodetoken){
+            throw new apierror(500,"internal error");
+        }
+
+        const user = await User.findById(decodetoken._id);
+
+        if(!user){
+            throw new apierror(400,"user not found");
+        }
+
+        if(incomingrefreshtoken!==user.refreshtoken){
+            throw new apierror(401,"access denied");
+        }
+
+        const {accesstoken,newrefreshtoken} = await generateaccessandrefreshtoken(user._id);
+
+        if(!accesstoken){
+            throw new apierror(500,"something went wrong while generating accesstoken");
+        }
+
+        if(!newrefreshtoken){
+            throw new apierror(500,"something went wrong while generating refresh token");
+        }
+
+        const options = {
+            httpOnly: true,
+            secure:true
+        }
+
+        return res.status(200)
+        .cookie("accesstoken",accesstoken,options)
+        .cookie("refreshtoken",newrefreshtoken,options)
+        .json(new apiresponse(200,{accesstoken,refreshtoken:newrefreshtoken},"acceess token refreshed successfully"));
+    } catch (error) {
+        throw new apierror(500,"something went wrong while generating access and refresh token");
+    }
+});
+
+
+module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken};

@@ -2,9 +2,11 @@ const express = require('express');
 
 const router = express.Router();
 
-const { registeruser, loginuser, logoutuser } = require("../controllers/user.controllers");
+const { registeruser, loginuser, logoutuser, generateaccesstoken } = require("../controllers/user.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
+
+const authorization = require("../middlewares/authorization.middlewares");
 
 
 router.route("/registeruser").post(
@@ -14,7 +16,9 @@ router.route("/registeruser").post(
 
 router.route("/loginuser").post(loginuser);
 
-router.route("/logoutuser",logoutuser);
+router.route("/logoutuser").post(authorization,logoutuser);
+
+router.route("/generateaccesstoken").post(generateaccesstoken);
 
 
 
