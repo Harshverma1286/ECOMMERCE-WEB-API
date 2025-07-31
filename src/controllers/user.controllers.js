@@ -328,5 +328,38 @@ const updateusernameemailandfullname = asynchandler(async(req,res)=>{
 
 });
 
+const updatepassword = asynchandler(async(req,res)=>{
+    const {newpassword,oldpassword} = req.body;
 
-module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname};
+    if(!newpassword){
+        throw new apierror(400,"kindly provide new password to update");
+    }
+
+    if(!oldpassword){
+        throw new apierror(400,"kindly provide the old passowrd");
+    }
+
+    if(newpassword===oldpassword){
+        throw new apierror(400,"plz provide differnt password");
+    }
+
+    const user = await User.findById(req.user._id);
+
+    const checkpassword = await user.ispasswordcorrect(oldpassword);
+
+    if(!checkpassword){
+        throw new apierror(400,"password incorrect");
+    }
+
+    user.password = newpassword;
+
+    await user.save();
+
+    return res.status(200).json(
+        new apiresponse(200,{},"password updated successfully")
+    )
+    
+});
+
+
+module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword};
