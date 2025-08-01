@@ -494,4 +494,18 @@ const deleteanaddress = asynchandler(async(req,res)=>{
     return res.status(200).json(new apiresponse(200,user.address,"user address fetched successfully"));
 
 });
-module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar,addanewadress,deleteanaddress};
+
+
+const getuserprofile = asynchandler(async(req,res)=>{
+    const user = await User.findById(req.user._id).select("-password -refreshtoken");
+
+    if(!user){
+        throw new apierror(400,"user not found");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,user,"user fetched successfully")
+    )
+
+});
+module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar,addanewadress,deleteanaddress,getuserprofile};
