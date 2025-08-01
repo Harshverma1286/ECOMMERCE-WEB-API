@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { registeruser, loginuser, logoutuser, generateaccesstoken, updateusernameemailandfullname, updatepassword, updateavatar, addanewadress } = require("../controllers/user.controllers");
+const { registeruser, loginuser, logoutuser, generateaccesstoken, updateusernameemailandfullname, updatepassword, updateavatar, addanewadress, deleteanaddress } = require("../controllers/user.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -32,6 +32,8 @@ router.route("/updateavatar").patch(
 
 
 router.route("/addanewaddress").post(authorization,addanewadress);
+
+router.route("/deleteaddress/addressID/:addressId").delete(authorization,deleteanaddress);
 
 
 

@@ -465,4 +465,33 @@ const addanewadress = asynchandler(async(req,res)=>{
 
 });
 
-module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar,addanewadress};
+const deleteanaddress = asynchandler(async(req,res)=>{
+    const {addressId} = req.params;
+
+    if(!addressId){
+        throw new apierror(400,"need addressid to delete");
+    }
+
+    const user = await User.findById(req.user._id);
+
+    const addresstodelete = user.address.find(addr => addr.id.toString()===addressId);
+
+
+    if(!addresstodelete){
+        throw new apierror(401,"address not found");
+    }
+
+    if(addresstodelete.isdefault){
+        throw new apierror(400,"cannot delete the address because it is set as default");
+    }
+
+
+
+    user.address = user.address.filter(addr=> addr.id.toString()!==addressId);
+
+    await user.save();
+
+    return res.status(200).json(new apiresponse(200,user.address,"user address fetched successfully"));
+
+});
+module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar,addanewadress,deleteanaddress};
