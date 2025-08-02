@@ -8,7 +8,9 @@ const apiresponse = require("../utils/apierror");
 
 const products = require("../models/products.models");
 
-
+const publishaproduct = asynchandler(async(req,res)=>{
+    
+})
 
 
 
