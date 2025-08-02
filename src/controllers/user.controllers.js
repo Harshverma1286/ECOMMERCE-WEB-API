@@ -508,4 +508,54 @@ const getuserprofile = asynchandler(async(req,res)=>{
     )
 
 });
-module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar,addanewadress,deleteanaddress,getuserprofile};
+
+const updateaddress = asynchandler(async(req,res)=>{
+    const {addressId} = req.params;
+
+    if(!addressId){
+        throw new apierror(400,"kindly provide the address id");
+    }
+
+   const {line1,line2,city,state,country,zip} = req.body;
+
+   const updatefields = {};
+
+   if(line1){
+    updatefields["address.$.line1"] = line1.trim();
+   }
+    if (line2) updatefields["address.$.line2"] = line2.trim();
+
+
+    if (city) updatefields["address.$.city"] = city.trim();
+
+    if (state) updatefields["address.$.state"] = state.trim();
+
+    if (country) updatefields["address.$.country"] = country.trim();
+
+    if (zip) updatefields["address.$.zip"] = zip.trim();
+
+   if(Object.keys(updatefields).length==0){
+    throw new apierror(400,"kindly provide any of the respective fields to update it");
+   }
+
+   const updation = await User.findOneAndUpdate(
+    {
+        _id:req.user._id,
+        "address._id":addressId,
+    },
+    {
+        $set:updatefields
+    },
+    {new:true}
+   ).select("-password -refreshtoken");
+
+
+   if(!updation){
+    throw new apierror(400,"something went wrong while updating the address");
+   }
+
+   return res.status(200).json(
+    new apiresponse(200,updation,"address updated successfully")
+   )
+});
+module.exports = {registeruser,loginuser,logoutuser,generateaccesstoken,updateusernameemailandfullname,updatepassword,updateavatar,addanewadress,deleteanaddress,getuserprofile,updateaddress};
