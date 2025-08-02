@@ -41,13 +41,13 @@ const productSchema = mongoose.Schema(
         category:{
             type:mongoose.Schema.Types.ObjectId,
             ref:'category',
-            required:true,
+            required:false,
         },
         countinstock:{
             type:Number,
-            required:true,
-            min:0,
+            min:0,// i will write controller for this later on
             max:100,
+            required:true,
         },
         rating:{
             type:Number,
