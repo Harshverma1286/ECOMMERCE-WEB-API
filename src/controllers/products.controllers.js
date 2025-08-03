@@ -6,7 +6,7 @@ const apierror = require("../utils/apierror");
 
 const apiresponse = require("../utils/apierror");
 
-const Products = require("../models/products.models");
+const Product = require("../models/products.models");
 
 const {uploadoncloudinary,deletefromcloudinary} = require("../utils/cloudinary");
 
@@ -63,7 +63,7 @@ const publishaproduct = asynchandler(async(req,res)=>{
 
     const uplaodextra = extraimages? await Promise.all(extraimages.map(img=> uploadoncloudinary(img))):[];
 
-    const createproduct = await Products.create({
+    const createproduct = await Product.create({
         name,
         description,
         richdescription:richdescription||"",
@@ -88,7 +88,73 @@ const publishaproduct = asynchandler(async(req,res)=>{
     )
 });
 
+const updateproductprice = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+
+    if(!product){
+        throw new apierror(404,"product does not exist");
+    }
+
+    if(product.owner.toString()!==req.user._id.toString()  && !req.user.isadmin){
+        throw new apierror(403,"you dont have the access to change the product price");
+    }
+
+    const {price} = req.body;
+
+    if(price===undefined || price<0){
+        throw new apierror(400,"plz enter the price and it should be more than zero");
+    }
+
+    product.price = price;
+
+    await product.save();
+
+    return res.status(200).json(
+        new apiresponse(200,product.price,"product price has changed successfully and will reflect accordingly")
+    )
+});
+
+const updatethecountinstockofproduct = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product does not exist");
+    }
+
+    if(product.owner.toString()!==req.user._id.toString() &&  !req.user.isadmin){
+        throw new apierror(403,"you are not granted the access to update it");
+    }
+
+    const {countinstock} = req.body;
+
+    if(countinstock===undefined || countinstock<0){
+        throw new apierror(400,"kindly provide me the countinstock and it should be greater than zero");
+    }
+
+    product.countinstock = countinstock;
+
+    await product.save();
+
+    return res.status(200).json(
+        new apiresponse(200,product,"count in stock updated successfully")
+    )
+
+});
 
 
 
-module.exports = {publishaproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct};

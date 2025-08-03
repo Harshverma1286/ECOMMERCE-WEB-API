@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishaproduct } = require("../controllers/products.controllers");
+const { publishaproduct, updateproductprice, updatethecountinstockofproduct } = require("../controllers/products.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -21,6 +21,12 @@ router.route("/publishaproduct").post(
     authorization,
     publishaproduct,
 );
+
+router.route("/updateprice/productid/:productId").patch(authorization,updateproductprice);
+
+router.route("/updatethecountinstock/productid/:productId").patch(authorization,updatethecountinstockofproduct);
+
+
 
 
 
