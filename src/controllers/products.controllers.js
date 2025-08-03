@@ -12,6 +12,23 @@ const {uploadoncloudinary,deletefromcloudinary} = require("../utils/cloudinary")
 
 const Category = require("../models/category.models");
 
+const getPublicIdFromUrl = (url) => {
+    try {
+        const parts = url.split("/");
+
+        const fileWithExt = parts[parts.length - 1];
+
+        const fileName = fileWithExt.split(".")[0];
+
+        const folder = parts[parts.length - 2];
+
+        return `${folder}/${fileName}`;
+    } catch (error) {
+        console.error("Failed to extract public_id from URL:", error);
+        return null;
+    }
+};
+
 
 
 const publishaproduct = asynchandler(async(req,res)=>{
@@ -207,7 +224,54 @@ const updatethenamedescriptionandrichdescriptionoftheproduct = asynchandler(asyn
 
 })
 
+const updatethemainimageoftheproduct = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id not recived");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    if(product.owner.toString()!==req.user._id.toString() && !req.user.isadmin){
+        throw new apierror(403,"you dont have access to update it");
+    }
+
+    const imagepath = req.file?.path;
+
+    if(!imagepath){
+        throw new apierror(400,"image path is required");
+    }
+
+    const oldimage = product.image;
+
+    if(oldimage){
+        const public_id = getPublicIdFromUrl(oldimage);
+        await deletefromcloudinary(public_id);
+    }
+
+    const uploadimage = await uploadoncloudinary(imagepath);
+
+    if(!uploadimage){
+        throw new apierror(500,"image cant be uploaded something went wrong");
+    }
+
+    product.image = uploadimage.url;
+
+    await product.save();
+
+    return res.status(200).json(
+        new apiresponse(200, product,"product main image updated successfuly")
+    )
+
+
+});
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct};
