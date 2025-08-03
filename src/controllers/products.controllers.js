@@ -154,7 +154,60 @@ const updatethecountinstockofproduct = asynchandler(async(req,res)=>{
 
 });
 
+const updatethenamedescriptionandrichdescriptionoftheproduct = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product does not found");
+    }
+
+    if(product.owner.toString()!==req.user._id.toString() && !req.user.isadmin){
+        throw new apierror(403,"you dont have access to it");
+    }
+
+    const {name,description,richdescription} = req.body;
+
+    const updatefields = {};
+
+    if(name){
+        updatefields.name = name.trim();
+    }
+
+    if(description){
+        updatefields.description = description.trim();
+    }
+
+    if(richdescription){
+        updatefields.richdescription = richdescription.trim();
+    }
+
+    if(Object.keys(updatefields).length==0){
+        throw new apierror(400,"kindly provide me something to update");
+    }
+
+    const productupdate = await Product.findByIdAndUpdate(
+        productId,
+        {$set:updatefields},
+        {new:true},
+    )
+
+    if(!productupdate){
+        throw new apierror(500,"something went wrong while updating the product");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,productupdate,"product updated successfullly")
+    )
+
+})
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct};

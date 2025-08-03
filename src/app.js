@@ -20,8 +20,12 @@ app.use(express.static("public"));
 
 const userrouter = require("./routes/user.routes");
 
+const productrouter = require("./routes/products.routes");
+
 
 app.use("/api/v1/users",userrouter);
+
+app.use("/api/v1/products",productrouter);
 
 
 module.exports = app;
