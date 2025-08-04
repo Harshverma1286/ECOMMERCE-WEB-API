@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishaproduct, updateproductprice, updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct, updatethemainimageoftheproduct, updateisfeaturedoftheproduct } = require("../controllers/products.controllers");
+const { publishaproduct, updateproductprice, updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct, updatethemainimageoftheproduct, updateisfeaturedoftheproduct, toggleisactiveoftheproduct } = require("../controllers/products.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -35,6 +35,8 @@ router.route("/:productId/update-main-image").patch(
 );
 
 router.route("/:productId/update-isfeatured").patch(authorization,updateisfeaturedoftheproduct);
+
+router.route("/:productId/update-isactivefeature").patch(authorization,toggleisactiveoftheproduct);
 
 
 

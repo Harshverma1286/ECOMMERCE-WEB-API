@@ -299,7 +299,33 @@ const updateisfeaturedoftheproduct = asynchandler(async(req,res)=>{
     )
 });
 
+const toggleisactiveoftheproduct = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    if(product.owner.toString()!==req.user._id.toString() && !req.user.isadmin){
+        throw new apierror(403,"access not granted");
+    }
+
+    product.isactive = !product.isactive;
+
+    await product.save({validateBeforeSave:false});
+
+    return res.status(200).json(
+        new apiresponse(200,product,"isactive toggled successfully")
+    )
+})
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct};
