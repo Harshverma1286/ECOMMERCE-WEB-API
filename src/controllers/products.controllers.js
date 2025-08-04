@@ -271,7 +271,35 @@ const updatethemainimageoftheproduct = asynchandler(async(req,res)=>{
 
 });
 
+const updateisfeaturedoftheproduct = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+
+    if(product.owner.toString()!==req.user._id.toString() && !req.user.isadmin){
+        throw new apierror(403,"access not granted");
+    }
+
+    product.isfeatured = !product.isfeatured;
+
+    await product.save({ validateBeforeSave: false });
+
+    return res.status(200).json(
+        new apiresponse(200,product,"isfeatured updated successfully")
+    )
+});
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct};
