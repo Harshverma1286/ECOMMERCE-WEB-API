@@ -325,7 +325,56 @@ const toggleisactiveoftheproduct = asynchandler(async(req,res)=>{
     )
 })
 
+const uploadmoreimages = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id not recived");
+    }
+
+    const product = await Product.findbyId(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    if(product.owner.toString()!==req.user._id.toString() && !req.user.isadmin){
+        throw new apierror(403,"you dont have access");
+    }
+
+    const extraimages = req.files?.images;
+
+     if(!extraimages || extraimages.length==0){
+        throw new apierror(400,"we want images to update");
+     }
+
+    let uploaded;
+    try {
+        uploaded = await Promise.all(
+        extraimages.map((file) => uploadoncloudinary(file.path))
+        );
+    } catch (err) {
+        throw new apierror(500, "One or more image uploads failed");
+    }
+
+    const urls = uploaded.map((u)=>{
+        if(!u?.url){
+            throw new apierror(500,"url not found");
+        }
+        return u.url;
+    })
+
+    product.images.push(...urls);
+
+    await product.save();
+
+    return res.status(200).json(
+        new apiresponse(200,product,"more images uploaded successfully")
+    )
+
+})
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages};
