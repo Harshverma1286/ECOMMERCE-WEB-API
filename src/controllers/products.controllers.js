@@ -374,7 +374,57 @@ const uploadmoreimages = asynchandler(async(req,res)=>{
 
 })
 
+const deleteimages = asynchandler(async(req,res)=>{
+    const {productId,imagesId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    if(!imagesId){
+        throw new apierror(400,"image id is required");
+    }
+
+
+    if(product.owner.toString()!==req.user._id.toString() && !req.user.isadmin){
+        throw new apierror(403,"you dont have access to it");
+    }
+
+
+    const findimage = product.images.find(prod=> prod._id.toString()===imagesId);
+
+    if(!findimage){
+        throw new apierror(404,"image not foun d which u want to delete");
+    }
+
+    const oldimage = findimage.url;
+
+    if(oldimage){
+        const public_id = getPublicIdFromUrl(oldimage);
+
+        await deletefromcloudinary(public_id);
+    }
+
+    product.images = product.images.filter(prod=> prod._id.toString()!==imagesId);
+
+    await product.save();
+
+    return res.status(200).json(
+        new apiresponse(200,product,"product image deleted successfully")
+    )
+
+
+});
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages};
+
+
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages};
