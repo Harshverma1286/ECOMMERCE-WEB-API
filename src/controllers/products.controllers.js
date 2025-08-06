@@ -129,12 +129,14 @@ const updateproductprice = asynchandler(async(req,res)=>{
         throw new apierror(400,"plz enter the price and it should be more than zero");
     }
 
-    product.price = price;
+    product.price=price;
 
     await product.save();
 
+    const actualprice = product.getactualprice(price,product.discount);
+
     return res.status(200).json(
-        new apiresponse(200,product.price,"product price has changed successfully and will reflect accordingly")
+        new apiresponse(200,{actualprice,product},"product price has changed successfully and will reflect accordingly")
     )
 });
 
@@ -441,7 +443,7 @@ const adddiscountintheproduct = asynchandler(async(req,res)=>{
 
     const {discount} = req.body;
 
-    if(discount===NaN && discount===undefined && discount<0 && discount>100){
+    if(discount==null && isNaN(discount) && discount<0 && discount>100){
         throw new apierror(400,"plz add the correct discount number");
     }
 
@@ -449,8 +451,10 @@ const adddiscountintheproduct = asynchandler(async(req,res)=>{
 
     await product.save();
 
+    const actualprice = product.getactualprice(product.price,discount);
+
     return res.status(200).json(
-        new apiresponse(200,product,"discount added sucessfully")
+        new apiresponse(200,{actualprice,product},"discount added sucessfully")
     )
 
 });

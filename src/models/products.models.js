@@ -33,6 +33,7 @@ const productSchema = mongoose.Schema(
         price:{
             type:Number,
             default:0,
+            required:true,
         },
         numreviews:{
             type:Number,
@@ -90,5 +91,10 @@ const productSchema = mongoose.Schema(
         timestamps:true,
     }
 );
+
+productSchema.methods.getactualprice = async function() {
+    return this.price - (this.price * this.discount / 100);
+}
+
 
 module.exports = mongoose.model("product",productSchema);
