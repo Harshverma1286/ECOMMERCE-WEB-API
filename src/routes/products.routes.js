@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishaproduct, updateproductprice, updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct, updatethemainimageoftheproduct, updateisfeaturedoftheproduct, toggleisactiveoftheproduct, uploadmoreimages, deleteimages, adddiscountintheproduct,gettheproductdetail } = require("../controllers/products.controllers");
+const { publishaproduct, updateproductprice, updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct, updatethemainimageoftheproduct, updateisfeaturedoftheproduct, toggleisactiveoftheproduct, uploadmoreimages, deleteimages, adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct } = require("../controllers/products.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -54,6 +54,8 @@ router.route("/:productId/imageId/:imagesId/delete-image").delete(authorization,
 router.route("/:productId/updatediscount-product").patch(authorization,adddiscountintheproduct);
 
 router.route("/:productId/getproductdetail").get(authorization,gettheproductdetail);
+
+router.route("/:productId/getthesalesoftheproduct").get(authorization,getsalesoftheproduct)
 
 
 
