@@ -459,9 +459,27 @@ const adddiscountintheproduct = asynchandler(async(req,res)=>{
 
 });
 
+const gettheproductdetail = asynchandler(async(req,res)=>{
+    const{productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,product,"product details fetched successfully")
+    )
+});
 
 
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail};
