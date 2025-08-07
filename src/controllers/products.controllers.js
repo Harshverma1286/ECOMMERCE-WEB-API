@@ -54,7 +54,7 @@ const publishaproduct = asynchandler(async(req,res)=>{
         throw new apierror(400,"category is required for the product");
     }
 
-    const categorycheck = await Category.findbyId(category);
+    const categorycheck = await Category.findById(category);
 
     if(!categorycheck){
         throw new apierror(400,"the required category is not found ");
@@ -67,18 +67,43 @@ const publishaproduct = asynchandler(async(req,res)=>{
     const imagepath = req.files?.image?.[0]?.path;
 
     const extraimages = req.files?.images?.map(file=> file.path);
+
     if(!imagepath){
         throw new apierror(400,"image of the product is required");
     }
 
-    const uplaodit = await uploadoncloudinary(imagepath);
+    const uploadit = await uploadoncloudinary(imagepath);
 
-    if(!uplaodit){
+    if(!uploadit?.url){
         throw new apierror(400,"something went wrong while uploading");
     }
 
+    const uploaddextra = extraimages? await Promise.all(extraimages.map(img=> uploadoncloudinary(img))):[];
 
-    const uplaodextra = extraimages? await Promise.all(extraimages.map(img=> uploadoncloudinary(img))):[];
+    if (extraimages && uploaddextra.some(img => !img?.url)) {
+        throw new apierror(500, "Some extra images failed to upload");
+    }
+
+    if (!Array.isArray(variants) || variants.length === 0) {
+        throw new apierror(400, "At least one variant is required");
+    }
+
+    for (const [index, vari] of variants.entries()) {
+        const fieldsinariants = ["color", "size"];
+        const numberinvariants = ["stock", "price"];
+
+        for (let field of fieldsinariants) {
+            if (!vari[field] || typeof vari[field] !== "string") {
+                throw new apierror(400, `Variant at index ${index} has invalid or missing ${field}`);
+            }
+        }
+
+        for (let numField of numberinvariants) {
+            if (vari[numField] === undefined || typeof vari[numField] !== "number" || isNaN(vari[numField])) {
+                throw new apierror(400, `Variant at index ${index} has invalid or missing ${numField}`);
+            }
+        }
+    }
 
     const createproduct = await Product.create({
         name,
@@ -498,6 +523,7 @@ const getsalesoftheproduct = asynchandler(async(req,res)=>{
         new apiresponse(200,{salescount:product.salescount},"sales count fetched successfully")
     )
 })
+
 
 
 
