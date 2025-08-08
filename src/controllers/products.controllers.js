@@ -525,8 +525,65 @@ const getsalesoftheproduct = asynchandler(async(req,res)=>{
 })
 
 
+const addmorevariantsoftheproduct = asynchandler(async(req,res)=>{
+   const {productId} = req.params;
+   
+   if(!productId){
+    throw new apierror(400,"product id not found");
+   }
+
+   const product = await Product.findById(productId);
+
+   if(!product){
+    throw new apierror(404,"product not found");
+   }
+
+   if(product.owner.toString()!==req.user._id.toString() && !req.user.isadmin){
+    throw new apierror(400,"you dont have access to it");
+   }
+
+   const {color,size,stock,price} = req.body;
+
+   if(!color){
+    throw new apierror(400,"color is required");
+   }
+
+
+   if(!size){
+    throw new apierror(400,"size is required");
+   }
+
+   if(stock===undefined || isNaN(stock) || stock<0){
+    throw new apierror(400,"stock is required");
+   }
+   if(price===undefined || isNaN(price) || price<0){
+    throw new apierror(400,"price is required");
+   }
+
+   const existingvariant = product.variants.find((v)=>v.color===color && v.size===size);
+
+   if(existingvariant){
+    throw new apierror(400,"variants already exist");
+   }
+
+   product.variants.push({
+    color,
+    size,
+    stock,
+    price,
+   });
+
+   await product.save();
+
+   return res.status(200).json(
+    new apiresponse(200,product,"variants added successfully")
+   )
+
+   
+});
 
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct};

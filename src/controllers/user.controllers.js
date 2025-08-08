@@ -442,6 +442,19 @@ const addanewadress = asynchandler(async(req,res)=>{
     );
     }
 
+    const ifaddressexist = user.address.find((addr) =>
+        addr.line1.trim() === line1.trim() &&
+        addr.line2.trim() === line2.trim() &&
+        addr.city.trim() === city.trim() &&
+        addr.state.trim() === state.trim() &&
+        addr.country.trim() === country.trim() &&
+        addr.zip.trim() === zip.trim()
+    );
+
+    if(ifaddressexist){
+        throw new apierror(400,"address already exist");
+    }
+
 
     user.address.push({
         line1,
