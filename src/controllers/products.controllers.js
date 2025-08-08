@@ -582,8 +582,40 @@ const addmorevariantsoftheproduct = asynchandler(async(req,res)=>{
    
 });
 
+const deleteavariantintheproduct = asynchandler(async(req,res)=>{
+    const {productId,variantid} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    if(!variantid){
+        throw new apierror(400,"variant id is required");
+    }
+
+    const findvariant = product.variants.find((vari)=> vari._id.toString()===variantid);
+
+    if(!findvariant){
+        throw new apierror(404,"variant does not exist");
+    }
+
+    product.variants.filter((vari)=>vari._id.toString()!==variantid);
+
+    await product.save();
+
+    return res.status(200).json(
+        new apiresponse(200,product,"variant removed successfully")
+    )
+});
 
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct};
