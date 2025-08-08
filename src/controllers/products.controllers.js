@@ -614,6 +614,10 @@ const deleteavariantintheproduct = asynchandler(async(req,res)=>{
     )
 });
 
+const getactiveproductsoftheuser = asynchandler(async(req,res)=>{
+    
+})
+
 
 
 
