@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishaproduct, updateproductprice, updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct, updatethemainimageoftheproduct, updateisfeaturedoftheproduct, toggleisactiveoftheproduct, uploadmoreimages, deleteimages, adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct, addmorevariantsoftheproduct, deleteavariantintheproduct, getactiveproductsoftheuser, getalltheproductsoftheuser } = require("../controllers/products.controllers");
+const { publishaproduct, updateproductprice, updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct, updatethemainimageoftheproduct, updateisfeaturedoftheproduct, toggleisactiveoftheproduct, uploadmoreimages, deleteimages, adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct, addmorevariantsoftheproduct, deleteavariantintheproduct, getactiveproductsoftheuser, getalltheproductsoftheuser, getisfeaturedproductsoftheuser } = require("../controllers/products.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -64,6 +64,8 @@ router.route("/:productId/:variantId/delete-variant").delete(authorization,delet
 router.route("/:userid/get-all-theactive-products-of-the-user").get(authorization,getactiveproductsoftheuser);
 
 router.route("/:userId/get-all-the-products-of-the-user").get(authorization,getalltheproductsoftheuser);
+
+router.route("/:userId/get-isfeatured-product").get(authorization,getisfeaturedproductsoftheuser);
 
 
 

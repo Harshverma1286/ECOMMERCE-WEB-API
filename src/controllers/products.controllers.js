@@ -674,6 +674,31 @@ const getalltheproductsoftheuser = asynchandler(async(req,res)=>{
     )
 });
 
+const getisfeaturedproductsoftheuser = asynchandler(async(req,res)=>{
+    const {userid} = req.params;
+
+    if(!userid){
+        throw new apierror(400,"user id not received");
+    }
+
+    const getisfeaturedproduct = await Product.aggregate([
+        {
+            $match:{
+                owner: new mongoose.Types.ObjectId(userid),
+                isfeatured:true,
+            }
+        }
+    ]);
+
+    if(getisfeaturedproduct.length===0){
+        throw new apierror(404,"there are no products that are featured");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,getisfeaturedproduct,"all the featured products of the user recived successfully")
+    )
+});
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser,getisfeaturedproductsoftheuser};
