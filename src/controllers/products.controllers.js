@@ -639,8 +639,41 @@ const getactiveproductsoftheuser = asynchandler(async(req,res)=>{
     )
 });
 
+const getalltheproductsoftheuser = asynchandler(async(req,res)=>{
+    const {userid} = req.params;
+
+    if(!userid){
+        throw new apierror(400,"user id is required");
+    }
+
+    const alltheproductsoftheuser = await Product.aggregate([
+        {
+            $match:{
+                owner:new mongoose.Types.ObjectId(userid)
+            }
+        },
+        {
+            $lookup:{
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "ownerDetails"
+            }
+        },
+        {
+            $unwind: { path: "$ownerDetails", preserveNullAndEmptyArrays: false }
+        }
+    ]);
+
+    if(alltheproductsoftheuser.length==0){
+        throw new apierror(400,"there are no products of the user");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,alltheproductsoftheuser,"all products of the user fetched successfully")
+    )
+});
 
 
 
-
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser};
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser};
