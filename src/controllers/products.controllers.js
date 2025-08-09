@@ -742,7 +742,7 @@ const getthevariantsoftheproduct = asynchandler(async(req,res)=>{
 })
 
 const getspecificvariantoftheproduct = asynchandler(async(req,res)=>{
-    const {productId} = req.params;
+    const {productId,variantid} = req.params;
 
     if(!productId){
         throw new apierror(400,"kindly provide me the productid");
@@ -754,7 +754,9 @@ const getspecificvariantoftheproduct = asynchandler(async(req,res)=>{
         throw new apierror(404,"product not found");
     }
 
-    const {variantid} = req.params;
+    if (!product.variants || product.variants.length === 0) {
+        throw new apierror(404, "This product has no variants");
+    }
 
     if(!variantid){
         throw new apierror(400,"variant id not recieved");
