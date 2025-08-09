@@ -699,6 +699,25 @@ const getisfeaturedproductsoftheuser = asynchandler(async(req,res)=>{
     )
 });
 
+const getproductbybrand = asynchandler(async(req,res)=>{
+    const {brandName} = req.params;
+
+    if(!brandName){
+        throw new apierror(400,"brandname is required");
+    }
+
+    const brands = await Product.find({brand:brandName});
+    
+
+    if(brands.length===0){
+        throw new apierror(400,"no products of that brand found");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,brands,"brand products fetched successfully")
+    )
+})
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser,getisfeaturedproductsoftheuser};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser,getisfeaturedproductsoftheuser,getproductbybrand};
