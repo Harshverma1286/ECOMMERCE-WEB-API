@@ -718,6 +718,29 @@ const getproductbybrand = asynchandler(async(req,res)=>{
     )
 })
 
+const getthevariantsoftheproduct = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id not recived");
+    }
+
+    const product = await Product.findById(productId);
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser,getisfeaturedproductsoftheuser,getproductbybrand};
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    if(!product.variants || product.variants.length===0){
+        throw new apierror(400,"there are no variants for the product");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,product.variants,"variants of the product fetched successfully")
+    )
+})
+
+
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser,getisfeaturedproductsoftheuser,getproductbybrand,getthevariantsoftheproduct};
