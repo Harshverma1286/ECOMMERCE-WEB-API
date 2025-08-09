@@ -615,11 +615,32 @@ const deleteavariantintheproduct = asynchandler(async(req,res)=>{
 });
 
 const getactiveproductsoftheuser = asynchandler(async(req,res)=>{
-    
-})
+    const {userid} = req.params;
+
+    if(!userid){
+        throw new apierror(400,"user id not recived");
+    }
+
+    const activeprosuctsoftheuser = await Product.aggregate([
+        {
+            $match:{
+                owner: new mongoose.Types.ObjectId(userid),
+                isactive:true
+            }
+        }
+    ]);
+
+    if(activeprosuctsoftheuser.length==0){
+        throw new apierror(400,"there are no products of the user that is active");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,activeprosuctsoftheuser,"all active products of the user fetched successfully")
+    )
+});
 
 
 
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct};
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser};
