@@ -741,6 +741,36 @@ const getthevariantsoftheproduct = asynchandler(async(req,res)=>{
     )
 })
 
+const getspecificvariantoftheproduct = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"kindly provide me the productid");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    const {variantid} = req.params;
+
+    if(!variantid){
+        throw new apierror(400,"variant id not recieved");
+    }
+
+    const findvariant = product.variants.find((vari)=> vari._id.toString()===variantid);
+
+    if(!findvariant){
+        throw new apierror(404,"the foloowing variant does not exist of the product");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,findvariant,"the specific variant recieved successfully")
+    )
+});
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser,getisfeaturedproductsoftheuser,getproductbybrand,getthevariantsoftheproduct};
+
+module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser,getisfeaturedproductsoftheuser,getproductbybrand,getthevariantsoftheproduct,getspecificvariantoftheproduct};

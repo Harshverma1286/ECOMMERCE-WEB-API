@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishaproduct, updateproductprice, updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct, updatethemainimageoftheproduct, updateisfeaturedoftheproduct, toggleisactiveoftheproduct, uploadmoreimages, deleteimages, adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct, addmorevariantsoftheproduct, deleteavariantintheproduct, getactiveproductsoftheuser, getalltheproductsoftheuser, getisfeaturedproductsoftheuser, getproductbybrand, getthevariantsoftheproduct } = require("../controllers/products.controllers");
+const { publishaproduct, updateproductprice, updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct, updatethemainimageoftheproduct, updateisfeaturedoftheproduct, toggleisactiveoftheproduct, uploadmoreimages, deleteimages, adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct, addmorevariantsoftheproduct, deleteavariantintheproduct, getactiveproductsoftheuser, getalltheproductsoftheuser, getisfeaturedproductsoftheuser, getproductbybrand, getthevariantsoftheproduct, getspecificvariantoftheproduct } = require("../controllers/products.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -70,6 +70,8 @@ router.route("/:userId/get-isfeatured-product").get(authorization,getisfeaturedp
 router.route("/:brandName/get-product-by-brandname").get(authorization,getproductbybrand);
 
 router.route("/:productId/get-all-thevariants-oftheproduct").get(authorization,getthevariantsoftheproduct);
+
+router.route("/:productId/:variantId/get-a-specific-variantoftheproduct").get(authorization,getspecificvariantoftheproduct);
 
 
 
