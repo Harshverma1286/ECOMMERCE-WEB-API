@@ -12,6 +12,8 @@ const {uploadoncloudinary,deletefromcloudinary} = require("../utils/cloudinary")
 
 const Category = require("../models/category.models");
 
+const Order = require("../models/order.models");
+
 const getPublicIdFromUrl = (url) => {
     try {
         const parts = url.split("/");
@@ -773,6 +775,78 @@ const getspecificvariantoftheproduct = asynchandler(async(req,res)=>{
     )
 });
 
+const updatethesalescountoftheproduct = asynchandler(async(req,res)=>{
+    const {productId} = req.params;
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+    if(product.owner.toString()!==req.user._id.toString() && !req.user.isadmin){
+        throw new apierror(403,"you dont have the access to update it ");
+    }
+
+    const totalsales = await Order.aggregate([
+        {
+            $unwind:"$orderitems"
+        },
+        {
+            $match:{
+                "orderitems.product":new mongoose.Types.ObjectId(productId),
+            }
+        },
+        {
+            $group:{
+                _id:null,
+                totalsales:{
+                    $sum:"$orderitems.quantity"
+                }
+            }
+        }
+    ])
+
+    if(totalsales.length===0 || totalsales[0].totasales===0){
+        throw new apierror(404,"there are no sale of this product");
+    }
+
+    product.salescount = totalsales[0].totalsales;
+
+    await product.save();
+
+    return res.status(200).json(
+        new apiresponse(200,product,"total sales of the product updated successfully")
+    )
 
 
-module.exports = {publishaproduct,updateproductprice,updatethecountinstockofproduct,updatethenamedescriptionandrichdescriptionoftheproduct,updatethemainimageoftheproduct,updateisfeaturedoftheproduct,toggleisactiveoftheproduct,uploadmoreimages,deleteimages,adddiscountintheproduct,gettheproductdetail,getsalesoftheproduct,addmorevariantsoftheproduct,deleteavariantintheproduct,getactiveproductsoftheuser,getalltheproductsoftheuser,getisfeaturedproductsoftheuser,getproductbybrand,getthevariantsoftheproduct,getspecificvariantoftheproduct};
+})
+
+
+
+module.exports = {publishaproduct
+    ,updateproductprice
+    ,updatethecountinstockofproduct
+    ,updatethenamedescriptionandrichdescriptionoftheproduct
+    ,updatethemainimageoftheproduct
+    ,updateisfeaturedoftheproduct
+    ,toggleisactiveoftheproduct
+    ,uploadmoreimages,
+    deleteimages,
+    adddiscountintheproduct,
+    gettheproductdetail,
+    getsalesoftheproduct
+    ,addmorevariantsoftheproduct
+    ,deleteavariantintheproduct
+    ,getactiveproductsoftheuser
+    ,getalltheproductsoftheuser
+    ,getisfeaturedproductsoftheuser
+    ,getproductbybrand
+    ,getthevariantsoftheproduct
+    ,getspecificvariantoftheproduct
+    ,updatethesalescountoftheproduct
+};
