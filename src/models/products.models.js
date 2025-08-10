@@ -46,7 +46,7 @@ const productSchema = mongoose.Schema(
         },
         countinstock:{
             type:Number,
-            min:0,// i will write controller for this later on
+            min:0,
             max:100,
             required:true,
         },
