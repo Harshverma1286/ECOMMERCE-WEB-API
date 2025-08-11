@@ -117,8 +117,8 @@ const publishaproduct = asynchandler(async(req,res)=>{
         countinstock,
         discount:discount||0,
         variants:variants||[],
-        image:uplaodit.url,
-        images: uplaodextra.map(file=>file.url),
+        image:uploadit.url,
+        images: uploaddextra.map(file=>file.url),
         owner:req.user._id,
     });
 
