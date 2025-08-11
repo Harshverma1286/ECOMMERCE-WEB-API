@@ -6,6 +6,7 @@ const apierror = require("../utils/apierror");
 
 const apiresponse = require("../utils/apiresponse");
 
+const Product = require("../models/products.models");
 const Category = require("../models/category.models");
 
 const {uploadoncloudinary,deletefromcloudinary} = require("../utils/cloudinary")
@@ -62,6 +63,49 @@ const publishacategory = asynchandler(async(req,res)=>{
     )
 })
 
+const getalltheproductswiththiscategory = asynchandler(async(req,res)=>{
+    const {categoryId} = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    if(!categoryId){
+        throw new apierror(400,"category id is required");
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if(!category){
+        throw new apierror(404,"category not found");
+    }
 
 
-module.exports = {publishacategory};
+    const getalltheproductswiththiscategory = await Product.aggregate([
+        {
+            $match:{category:new mongoose.Types.ObjectId(categoryId)}
+        },
+        {
+         
+            $sort: { createdAt: -1 },
+        },
+        {
+            $skip: (page - 1) * limit,
+        },
+        {
+            $limit: limit
+        }
+    ])
+
+    if(getalltheproductswiththiscategory.length===0){
+        throw new apierror(404,"there are no products of this category")
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,getalltheproductswiththiscategory,"all the products fetched successfully")
+    )
+});
+
+
+module.exports = {publishacategory
+    ,getalltheproductswiththiscategory
+    
+};
