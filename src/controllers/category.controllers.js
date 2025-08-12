@@ -177,6 +177,30 @@ const getallthecategories = asynchandler(async(req,res)=>{
     )
 });
 
+const getsubcategories = asynchandler(async(req,res)=>{
+    const {categoryId} = req.params;
+
+    if(!categoryId){
+        throw new apierror(400,"category id is required");
+    }
+
+    const parentcategory = await Category.findById(categoryId);
+
+    if(!parentcategory){
+        throw new apierror(404,"parent category is not there");
+    }
+
+    const subcategories = await Category.findById({parentcategory:categoryId});
+
+    if(subcategories.length===0){
+        throw new apierror(400,"there are no subcategories");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,subcategories,"all the subcategories recived successfully")
+    )
+});
+
 
 
 module.exports = {publishacategory
@@ -185,5 +209,5 @@ module.exports = {publishacategory
     ,getdetailsofthecategorybycategoryid
     ,getallactivecategories
     ,getallthecategories
-
+    ,getsubcategories
 };

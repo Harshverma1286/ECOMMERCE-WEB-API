@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishacategory, getalltheproductswiththiscategory, toggleisactivecategory, getdetailsofthecategorybycategoryid, getallactivecategories, getallthecategories } = require("../controllers/category.controllers");
+const { publishacategory, getalltheproductswiththiscategory, toggleisactivecategory, getdetailsofthecategorybycategoryid, getallactivecategories, getallthecategories, getsubcategories } = require("../controllers/category.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -33,6 +33,8 @@ router.route("/publish-a-category").post(
   router.route("/getalltheactivecategory").get(authorization,getallactivecategories);
 
   router.route("/getallcategory").get(authorization,getallthecategories);
+
+  router.route("/:categoryId/getparentcategory").get(authorization,getsubcategories);
 
 
 
