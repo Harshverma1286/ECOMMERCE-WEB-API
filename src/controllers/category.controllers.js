@@ -104,8 +104,86 @@ const getalltheproductswiththiscategory = asynchandler(async(req,res)=>{
     )
 });
 
+const toggleisactivecategory = asynchandler(async(req,res)=>{
+    const {categoryId} = req.params;
+
+    if(!categoryId){
+        throw new apierror(400,"category is required");
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if(!category){
+        throw new apierror(404,"category does not exist");
+    }
+
+    category.isactive = !category.isactive;
+
+    await category.save();
+
+    return res.status(200).json(
+        new apiresponse(200,category,"isactive toggled successfully")
+    )
+});
+
+const getdetailsofthecategorybycategoryid = asynchandler(async(req,res)=>{
+    const {categoryId} = req.params;
+
+    if(!categoryId){
+        throw new apierror(400,"category id is required");
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if(!category){
+        throw new apierror(404,"category does not exist");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,category,"category fetched successfully")
+    )
+})
+
+const getallactivecategories = asynchandler(async(req,res)=>{
+    
+    const categories = await Category.aggregate([
+        {
+            $match:{
+                isactive:true,
+            }
+        }
+    ])
+
+    if(categories.length===0){
+        throw new apierror(404,"there are no active categories");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,categories,"all the active categories fetched successfully")
+    );
+})
+
+
+const getallthecategories = asynchandler(async(req,res)=>{
+    const category = await Category.find().sort({ createdAt: -1 }).lean();
+
+    if(category.length===0){
+        throw new apierror(404,"there does not exist any category");
+    }
+
+
+    return res.status(200).json(
+        new apiresponse(200,category,"all the category fetched successfully")
+    )
+});
+
+
 
 module.exports = {publishacategory
     ,getalltheproductswiththiscategory
-    
+    ,toggleisactivecategory
+    ,getdetailsofthecategorybycategoryid
+    ,getallactivecategories
+    ,getallthecategories
+
 };
