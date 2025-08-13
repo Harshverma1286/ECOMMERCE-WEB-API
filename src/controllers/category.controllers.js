@@ -201,6 +201,72 @@ const getsubcategories = asynchandler(async(req,res)=>{
     )
 });
 
+const publishasubcategory = asynchandler(async(req,res)=>{
+    const {name,color,description,parentcategory} = req.body;
+
+    if(!name?.trim()){
+        throw new apierror(400,"name is required");
+    }
+
+    if(!color?.trim()){
+        throw new apierror(400,"color is required");
+    }
+
+    if(!description?.trim()){
+        throw new apierror(400,"description is required");
+    }
+
+    if(!parentcategory){
+        throw new apierror(400,"parentcategory is required");
+    }
+
+    const parent = await Category.findById(parentcategory);
+
+    if(!parent){
+        throw new apierror(404,"parent does not exist");
+    }
+
+    const findname = await Category.findOne({name,parentcategory});
+
+    if(findname){
+        throw new apierror(400,"this sub category already exist");
+    }
+
+
+    const iconpath = req.files?.icon?.[0]?.path;
+
+    if(!iconpath){
+        throw new apierror(400,"icon path not found");
+    }
+
+    const uploadicon = await uploadoncloudinary(iconpath);
+
+    if(!uploadicon){
+        throw new apierror(500,"something went wrong while uploading icon");
+    }
+
+    const bannerpath = req.files?.banner?.[0]?.path;
+
+    const uploadingbanner = bannerpath ? await uploadoncloudinary(bannerpath) : null;
+
+    const createsubcategory = await Category.create({
+        name,
+        color,
+        description,
+        icon:uploadicon.url,
+        bannerimage:uploadingbanner?.url|| "",
+        parentcategory:parentcategory,
+    })
+
+    if(!createsubcategory){
+        throw new apierror(500,"something went wrong while creating it");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,createsubcategory,"sub category created successfully")
+    )
+});
+
 
 
 module.exports = {publishacategory
@@ -210,4 +276,5 @@ module.exports = {publishacategory
     ,getallactivecategories
     ,getallthecategories
     ,getsubcategories
+    ,publishasubcategory
 };

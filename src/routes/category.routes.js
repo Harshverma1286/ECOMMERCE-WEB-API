@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishacategory, getalltheproductswiththiscategory, toggleisactivecategory, getdetailsofthecategorybycategoryid, getallactivecategories, getallthecategories, getsubcategories } = require("../controllers/category.controllers");
+const { publishacategory, getalltheproductswiththiscategory, toggleisactivecategory, getdetailsofthecategorybycategoryid, getallactivecategories, getallthecategories, getsubcategories, publishasubcategory } = require("../controllers/category.controllers");
 
 const upload = require("../middlewares/multer.middlewares");
 
@@ -12,11 +12,11 @@ const authorization = require("../middlewares/authorization.middlewares");
 router.route("/publish-a-category").post(
     upload.fields([
         {
-            name:icon,
+            name:"icon",
             maxCount:1,
         },
         {
-            name:banner,
+            name:"banner",
             maxCount:1,
         }
     ]),
@@ -35,6 +35,19 @@ router.route("/publish-a-category").post(
   router.route("/getallcategory").get(authorization,getallthecategories);
 
   router.route("/:categoryId/getparentcategory").get(authorization,getsubcategories);
+
+  router.route("/publishasubcategory").post(
+    upload.fields([
+        {
+            name:"icon",
+            maxCount:1,
+        },
+        {
+            name:"banner",
+            maxCount:1,
+        }
+    ]),
+    authorization,publishasubcategory);
 
 
 
