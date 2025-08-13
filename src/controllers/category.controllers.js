@@ -304,6 +304,6 @@ module.exports = {publishacategory
     ,getallactivecategories
     ,getallthecategories
     ,getsubcategories
-    ,publishasubcategory,
-    getparentcategorybythesubcategory
+    ,publishasubcategory
+    ,getparentcategorybythesubcategory
 };
