@@ -267,6 +267,34 @@ const publishasubcategory = asynchandler(async(req,res)=>{
     )
 });
 
+const getparentcategorybythesubcategory = asynchandler(async(req,res)=>{
+    const {categoryId} = req.params;
+
+    if(!categoryId){
+        throw new apierror(400,"category id is required");
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if(!category){
+        throw new apierror(404,"this category does not exist");
+    }
+
+    if(!category.parentcategory){
+        throw new apierror(404,"there are no subcategories");
+    }
+
+    const subcategory = await Category.findOne(category.parentcategory);
+
+    if(!subcategory){
+        throw new apierror(404,"there are no subcategories");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,subcategory,"all the subcategories fetched successfully")
+    )
+});
+
 
 
 module.exports = {publishacategory
@@ -276,5 +304,6 @@ module.exports = {publishacategory
     ,getallactivecategories
     ,getallthecategories
     ,getsubcategories
-    ,publishasubcategory
+    ,publishasubcategory,
+    getparentcategorybythesubcategory
 };
