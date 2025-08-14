@@ -295,6 +295,49 @@ const getparentcategorybythesubcategory = asynchandler(async(req,res)=>{
     )
 });
 
+const getcategorywithproductinfo = asynchandler(async(req,res)=>{
+    const {categoryId} = req.params;
+
+    if(!categoryId){
+        throw new apierror(400,"category id is required");
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if(!category){
+        throw new apierror(404,"category not found");
+    }
+
+    const productsallwiththiscategory = await Product.aggregate([
+        {
+            $match:{
+                category:new mongoose.Types.ObjectId(categoryId),
+            }
+        },
+        {
+            $lookup:{
+            from: "categories",
+            localField: "category",
+            foreignField: "_id",
+            as: "categorydetails"
+            }
+        },
+        {
+            $unwind:"$categorydetails",
+        }
+    ]);
+
+    if(productsallwiththiscategory.length==0){
+        throw new apierror(400,"there are no products with this categories");
+    }
+
+
+    return res.status(200).json(
+        new apiresponse(200,productsallwiththiscategory,"all the products with this category fetched successfully")
+    )
+
+});
+
 
 
 module.exports = {publishacategory
@@ -306,4 +349,5 @@ module.exports = {publishacategory
     ,getsubcategories
     ,publishasubcategory
     ,getparentcategorybythesubcategory
+    ,getcategorywithproductinfo
 };
