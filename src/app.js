@@ -22,10 +22,14 @@ const userrouter = require("./routes/user.routes");
 
 const productrouter = require("./routes/products.routes");
 
+const categoryrouter = require("./routes/category.routes");
+
 
 app.use("/api/v1/users",userrouter);
 
 app.use("/api/v1/products",productrouter);
+
+app.use("/api/v1/category",categoryrouter);
 
 
 module.exports = app;
