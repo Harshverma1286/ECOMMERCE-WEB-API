@@ -57,7 +57,39 @@ const publishareview = asynchandler(async(req,res)=>{
     )
 });
 
+const updatethecomment = asynchandler(async(req,res)=>{
+    const {reviewId} = req.params;
+
+    if(!reviewId){
+        throw new apierror(400,"review id is required");
+    }
+
+    const review = await Review.findById(reviewId);
+
+    if(!review){
+        throw new apierror(404,"review not found");
+    }
+
+    if (review.user.toString() !== req.user._id.toString()) {
+        throw new apierror(403, "You are not allowed to update this review");
+    }
+
+    const {comment} = req.body;
+
+    if(!comment?.trim()){
+        throw new apierror(400,"kindly provide the comment to update");
+    }
+
+    review.comment = comment;
+
+    await review.save();
+
+    return res.status(200).json(
+        new apiresponse(200,review,"comment updated successfully")
+    )
+});
 
 
 
-module.exports = {publishareview};
+
+module.exports = {publishareview,updatethecomment};
