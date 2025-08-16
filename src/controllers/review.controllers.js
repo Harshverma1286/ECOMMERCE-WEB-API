@@ -122,10 +122,84 @@ const gettheproductallreviews = asynchandler(async(req,res)=>{
 });
 
 
+const getalltheuserreviewwithproductinfoinit = asynchandler(async(req,res)=>{
+    const {userId} = req.params;
+
+    if(!userId){
+        throw new apierror(400,"user id is required");
+    }
+
+
+    const findreviewoftheuser = await Review.aggregate([
+        {
+            $match:{
+                user:new mongoose.Types.ObjectId(userId),
+            }
+        },
+        {
+            $lookup:{
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "userdetails"
+            }
+        },
+        {
+            $unwind:"$userdetails"
+        },
+        {
+            $project:{
+                _id: 1,
+                rating: 1,
+                comment: 1,
+                createdAt: 1,
+                "userdetails._id": 1,
+                "userdetails.username": 1,
+                "userdetails.email": 1,
+            }
+        },
+        {
+            $lookup:{
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "productinfo"                
+            }
+        },
+        {
+            $unwind:"$productinfo"
+        },
+        {
+            $project: {
+                _id: 1,
+                rating: 1,
+                comment: 1,
+                createdAt: 1,
+                "productInfo._id": 1,
+                "productInfo.name": 1,
+                "productInfo.description": 1,
+                "productInfo.price": 1,
+                "productInfo.image": 1,
+                "productInfo.rating": 1
+            }
+        }
+    ]);
+
+
+    if(findreviewoftheuser.length===0){
+        throw new apierror(400,"user has no reviews");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,findreviewoftheuser,"successfully fetched all the reviews with product info in it")
+    )
+});
+
+
 
 
 module.exports = {publishareview,
     updatethecomment,
 gettheproductallreviews,
-
+getalltheuserreviewwithproductinfoinit,
 };
