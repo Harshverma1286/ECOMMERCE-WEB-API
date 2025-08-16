@@ -196,10 +196,36 @@ const getalltheuserreviewwithproductinfoinit = asynchandler(async(req,res)=>{
 });
 
 
+const getthecommentandratingoftheuserwithreviewid = asynchandler(async(req,res)=>{
+    const {reviewId} = req.params;
+
+    if(!reviewId){
+        throw new apierror(200,"review id not found");
+    }
+
+    const review = await Review.findById(reviewId);
+
+    if(!review){
+        throw new apierror(200,"there are no reviews found");
+    }
+
+
+    return res.status(200).json(
+        new apiresponse(200,{
+            comment:review.comment,
+            rating:review.rating,
+        },"review comment fetched successfully")
+    )
+});
+
+
+
+
 
 
 module.exports = {publishareview,
     updatethecomment,
 gettheproductallreviews,
 getalltheuserreviewwithproductinfoinit,
+getthecommentandratingoftheuserwithreviewid,
 };
