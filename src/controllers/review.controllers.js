@@ -89,7 +89,43 @@ const updatethecomment = asynchandler(async(req,res)=>{
     )
 });
 
+const gettheproductallreviews = asynchandler(async(req,res)=>{
+    const {ProductId} = req.params;
+
+    if(!ProductId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const product = await product.findById(ProductId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+
+    const getallreviews = await Review.aggregate([
+        {
+            $match:{
+                product:new mongoose.Types.ObjectId(ProductId),
+            }
+        }
+    ]);
+
+    if(getallreviews.length===0){
+        throw new apierror(404,"there are no review on this product");
+    }
+
+
+    return res.status(200).json(
+        new apiresponse(200,{product,getallreviews},"all the reviews fetched successfully of the product")
+    )
+});
 
 
 
-module.exports = {publishareview,updatethecomment};
+
+module.exports = {publishareview,
+    updatethecomment,
+gettheproductallreviews,
+
+};
