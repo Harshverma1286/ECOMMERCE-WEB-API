@@ -246,6 +246,32 @@ const deletethereviewwithreviewid = asynchandler(async(req,res)=>{
 })
 
 
+const getaverageratingofaproduct = asynchandler(async(req,res)=>{
+    const {ProductId} = req.params;
+
+    if(!ProductId){
+        throw new apierror(400,"product id not revieved");
+    }
+
+    const findallreview = await Review.aggregate([
+        {
+            $match:{
+                product: new mongoose.Types.ObjectId(ProductId)
+            }
+        }
+    ])
+
+    if(findallreview.length===0){
+        return res.status(200).json(
+            new apiresponse(200,0,"there are no rating for this product")
+        )
+    }
+
+
+    
+
+})
+
 
 
 

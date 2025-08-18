@@ -60,10 +60,6 @@ const productSchema = mongoose.Schema(
             type:Boolean,
             default:false,
         },
-        review:{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"review"
-        },
         salescount:{
             type:Number,
             default:0,
