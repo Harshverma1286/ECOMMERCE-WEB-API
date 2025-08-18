@@ -218,6 +218,33 @@ const getthecommentandratingoftheuserwithreviewid = asynchandler(async(req,res)=
     )
 });
 
+const deletethereviewwithreviewid = asynchandler(async(req,res)=>{
+    const {reviewId} = req.params;
+
+    if(!reviewId){
+        throw new apierror(400,"review id not recieved");
+    }
+
+    const review = await Review.findById(reviewId);
+
+    if(!review){
+        throw new apierror(404,"review not found");
+    }
+
+    if(review.user.toString()!=req.user._id.toString() && !req.user.isad){
+        throw new apierror(403,"you are not pwermiteed to delete the review");
+    }
+
+
+    await review.deleteOne();
+
+    return res.status(200).json(
+        new apiresponse(200,{},"review of the user deleted successfully")
+    )
+
+
+})
+
 
 
 
@@ -228,4 +255,5 @@ module.exports = {publishareview,
 gettheproductallreviews,
 getalltheuserreviewwithproductinfoinit,
 getthecommentandratingoftheuserwithreviewid,
+deletethereviewwithreviewid,
 };
