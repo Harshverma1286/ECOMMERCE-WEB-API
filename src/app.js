@@ -22,12 +22,16 @@ const productrouter = require("./routes/products.routes");
 
 const categoryrouter = require("./routes/category.routes");
 
+const reviewrouter = require("./routes/review.routes");
+
 
 app.use("/api/v1/users",userrouter);
 
 app.use("/api/v1/products",productrouter);
 
 app.use("/api/v1/category",categoryrouter);
+
+app.use("/api/v1/reviews",reviewrouter);
 
 
 module.exports = app;
