@@ -258,18 +258,33 @@ const getaverageratingofaproduct = asynchandler(async(req,res)=>{
             $match:{
                 product: new mongoose.Types.ObjectId(ProductId)
             }
+        },
+        {
+            $group:{
+                _id:"$product",
+                averagerating:{$avg:"$rating"},
+                totalreviews:{$sum:1},
+            }
         }
     ])
 
     if(findallreview.length===0){
         return res.status(200).json(
-            new apiresponse(200,0,"there are no rating for this product")
+            new apiresponse(200,{
+                averagerating:0,
+                totalreviews:0,
+            },"there are no rating for this product")
         )
     }
 
-
-    
-
+    return res.status(200).json(
+        new apiresponse(200,
+            {
+              averagerating:findallreview[0].averagerating,
+              totalreviews:findallreview[0].totalreviews,
+            }
+        )
+    );
 })
 
 
@@ -282,4 +297,5 @@ gettheproductallreviews,
 getalltheuserreviewwithproductinfoinit,
 getthecommentandratingoftheuserwithreviewid,
 deletethereviewwithreviewid,
+getaverageratingofaproduct,
 };

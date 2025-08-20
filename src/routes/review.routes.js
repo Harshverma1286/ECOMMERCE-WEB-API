@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishareview, updatethecomment, gettheproductallreviews, getalltheuserreviewwithproductinfoinit, getthecommentandratingoftheuserwithreviewid, deletethereviewwithreviewid } = require("../controllers/review.controllers");
+const { publishareview, updatethecomment, gettheproductallreviews, getalltheuserreviewwithproductinfoinit, getthecommentandratingoftheuserwithreviewid, deletethereviewwithreviewid, getaverageratingofaproduct } = require("../controllers/review.controllers");
 
 const authorization = require("../middlewares/authorization.middlewares");
 
@@ -18,6 +18,8 @@ router.route("/userId/getallthereviewoftheuser").get(authorization,getalltheuser
 router.route("/:reviewId/getthecommentandratingwithreviewid").get(authorization,getthecommentandratingoftheuserwithreviewid);
 
 router.route("/:reviewId/deletethereview").delete(authorization,deletethereviewwithreviewid);
+
+router.route("/:productId/gettheaverageratingoftheproduct").get(authorization,getaverageratingofaproduct);
 
 
 
