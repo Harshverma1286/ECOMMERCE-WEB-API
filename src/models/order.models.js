@@ -19,7 +19,7 @@ const orderschema = mongoose.Schema(
                     required:true,
                     min:1,
                 },
-                priceatpackeage:{
+                priceatpackage:{
                     type:Number,
                     required:true,
                 }
@@ -58,9 +58,20 @@ const orderschema = mongoose.Schema(
         },
         deliveredat:{
             type:Date,
+        },
+        comment:{
+            type:String,
         }
     },
     {timestamps:true},
 )
+
+orderschema.methods.getfullprice = async function(orderitems){
+    let ans = 0;
+    orderitems.forEach((orders)=>{
+        ans = ans + (orders.quantity*orders.priceatpackage);
+    })
+    return ans;
+}
 
 module.exports = mongoose.model('order',orderschema);
