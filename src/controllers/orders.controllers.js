@@ -53,7 +53,7 @@ const publishaorder = asynchandler(async(req,res)=>{
     })
 
 
-    const user = await User.findById(req.User._id);
+    const user = await User.findById(req.user._id);
 
     if(!user){
         throw new apierror(400,"user details not found");
@@ -76,13 +76,10 @@ const publishaorder = asynchandler(async(req,res)=>{
         throw new apierror(400,"the following address is not correct kindly add the address first");
     }
 
-    const actualtotalamount = getfullprice(orderitems);
-
     const createorder = await Order.create({
-        user,
+        user:req.user._id,
         orderitems,
         shippinginfo,
-        actualtotalamount,
         orderstatus:"processing",
         comment:comment || "",
     })
@@ -90,6 +87,12 @@ const publishaorder = asynchandler(async(req,res)=>{
     if(!createorder){
         throw new apierror(500,"something went wrong while creating order");
     }
+
+    let getfullprice =  createorder.getfullprice(orderitems);
+
+    createorder.totalamount = getfullprice;
+
+    await createorder.save();
 
     return res.status(200).json(
         new apiresponse(200,createorder,"order published successfully")
