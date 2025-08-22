@@ -26,9 +26,15 @@ const orderschema = mongoose.Schema(
             }
         ],
         shippinginfo:{
-            address:{
+            line1:{
                 type:String,
                 required:true,
+                trim:true,
+            },
+            line2:{
+                type:String,
+                required:true,
+                trim:true,
             },
             city:{
                 type:String,
@@ -38,13 +44,18 @@ const orderschema = mongoose.Schema(
                 type:String,
                 required:true,
             },
-            pincode:{
+            zip:{
                 type:String,
                 required:true,
             },
             phone:{
                 type:String,
                 required:true,
+            },
+            country:{
+                type:String,
+                required:true,
+                trim:true
             }
         },
         totalamount:{

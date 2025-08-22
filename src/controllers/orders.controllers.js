@@ -9,13 +9,17 @@ const apiresponse = require("../utils/apiresponse");
 const Product = require("../models/products.models");
 
 const User = require("../models/users.models");
+
+const Order = require("../models/order.models");
 const { all } = require('../app');
 
 
 const publishaorder = asynchandler(async(req,res)=>{
-    const {orderitems,shippinginfo} = req.body;  
+    const {orderitems,shippinginfo,comment} = req.body;  
 
     const allitemsinorderitems = ["product","quantity","priceatpackage"];
+
+    const shippinginfoaddress = ["line1","line2","city","state","zip","phone","country"];
 
     if(!Array.isArray(orderitems) || orderitems.length===0){
         throw new apierror(400,"plz provide the orderitems");
@@ -38,11 +42,62 @@ const publishaorder = asynchandler(async(req,res)=>{
         })
     });
 
+    if(!shippinginfo || typeof shippinginfo!=="object"){
+        throw new apierror(400,"plz provide the correct way");
+    }
+
+    shippinginfoaddress.forEach((field)=>{
+        if(!shippinginfo[field]?.trim() || typeof shippinginfo[field]!=="object"){
+            throw new apierror(400,`shipping info has an invalid field that is ${field}`)
+        }
+    })
 
 
-})
+    const user = await User.findById(req.User._id);
+
+    if(!user){
+        throw new apierror(400,"user details not found");
+    }
+
+    let isaddresscorrect = false;
+    user.address.forEach((eachaddress)=>{
+        let match = true;
+        shippinginfo.forEach((pervalue)=>{
+            if(shippinginfo[pervalue]!=eachaddress[pervalue]){
+                match = false;
+            }
+        })
+        if(match===true){
+            isaddresscorrect=true;
+        }
+    })
+
+    if(!isaddresscorrect){
+        throw new apierror(400,"the following address is not correct kindly add the address first");
+    }
+
+    const actualtotalamount = getfullprice(orderitems);
+
+    const createorder = await Order.create({
+        user,
+        orderitems,
+        shippinginfo,
+        actualtotalamount,
+        orderstatus:"processing",
+        comment:comment || "",
+    })
+
+    if(!createorder){
+        throw new apierror(500,"something went wrong while creating order");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,createorder,"order published successfully")
+    )
+
+});
 
 
 
 
-module.exports = {};
+module.exports = {publishaorder};
