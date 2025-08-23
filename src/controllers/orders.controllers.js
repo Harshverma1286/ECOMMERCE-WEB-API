@@ -141,6 +141,18 @@ const updatetheorderstatus = asynchandler(async(req,res)=>{
         throw new apierror(400,"the field is the same kindly provide different field to update");
     }
 
+    if(!req.user.isadmin){
+
+        const isowner = order.orderitems.some((item)=>{
+            item.Product.owner.toString()===req.user._id.toString();
+        })
+
+
+         if (!isowner) {
+            throw new apierror(403, "You are not authorized to update this order");
+        }
+    }
+
     let allfields = ["processing","shipped","delivered","cancelled"];
 
     let check = false;
@@ -174,7 +186,29 @@ const updatetheorderstatus = asynchandler(async(req,res)=>{
 });
 
 
+const gettherespectiveorderdetailswithorderid = asynchandler(async(req,res)=>{
+    const {orderId} = req.params;
+
+    if(!orderId){
+        throw new apierror(400,"order id not found");
+    }
+
+    const order = await Order.findById(orderId);
+
+    if(!order){
+        throw new apierror(404,"order not found");
+    }
+
+
+    return res.status(200).json(
+        new apiresponse(200,order,"order details fetched successfully")
+    )
+});
 
 
 
-module.exports = {publishaorder,getthetotalamountoftheorderwithorderid,updatetheorderstatus};
+
+
+
+
+module.exports = {publishaorder,getthetotalamountoftheorderwithorderid,updatetheorderstatus,gettherespectiveorderdetailswithorderid};
