@@ -100,7 +100,81 @@ const publishaorder = asynchandler(async(req,res)=>{
 
 });
 
+const getthetotalamountoftheorderwithorderid = asynchandler(async(req,res)=>{
+    const {orderId} = req.params;
+
+    if(!orderId){
+        throw new apierror(400,"order id is required");
+    }
+
+
+    const order = await Order.findById(orderId);
+
+    if(!order){
+        throw new apierror(404,"order not found");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,order.totalamount,"total amount of the order fetched successfully")
+    )
+});
+
+const updatetheorderstatus = asynchandler(async(req,res)=>{
+    const {orderId,value} = req.params;
+
+
+    if(!orderId){
+        throw new apierror(400,"order id is not there");
+    }
+
+    const order = await Order.findById(orderId);
+
+    if(!order){
+        throw new apierror(404,"order not found")
+    }
+
+    if(!value || typeof value!=="string"){
+        throw new apierror(400,"kindly provide me the respective field to update");
+    }
+
+    if(order.orderstatus===value){
+        throw new apierror(400,"the field is the same kindly provide different field to update");
+    }
+
+    let allfields = ["processing","shipped","delivered","cancelled"];
+
+    let check = false;
+
+    allfields.forEach((val)=>{
+        let ans = false;
+        if(val===value){
+            ans=true;
+        }
+        if(ans===true){
+            check = true;
+        }
+    })
+
+    if(!check){
+        throw new apierror(400,"plz provide the correct value to update the values should be processing,shipped,delivered,cancelled");
+    }
+
+    if(value==="delivered"){
+        order.deliveredat = Date.now();
+    }
+
+
+    order.orderstatus = value;
+
+    await order.save();
+
+    return res.status(200).json(
+        new apiresponse(200,order,"order status updated successfully")
+    )
+});
 
 
 
-module.exports = {publishaorder};
+
+
+module.exports = {publishaorder,getthetotalamountoftheorderwithorderid,updatetheorderstatus};
