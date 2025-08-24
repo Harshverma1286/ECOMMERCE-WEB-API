@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishaorder, getthetotalamountoftheorderwithorderid, updatetheorderstatus, gettherespectiveorderdetailswithorderid } = require("../controllers/orders.controllers");
+const { publishaorder, getthetotalamountoftheorderwithorderid, updatetheorderstatus, gettherespectiveorderdetailswithorderid, gettheorderstatuswithorderid, getallordersoftheuser } = require("../controllers/orders.controllers");
 
 const authorization = require('../middlewares/authorization.middlewares');
 
@@ -13,6 +13,10 @@ router.route("/:orderId/getthefullamountoftheorder").get(authorization,getthetot
 router.route("/:orderId/:value/updateorderstatus").patch(authorization,updatetheorderstatus);
 
 router.route("/:orderId/gettheorderdetails").get(authorization,gettherespectiveorderdetailswithorderid);
+
+router.route("/:orderId/getorderstatus").get(authorization,gettheorderstatuswithorderid);
+
+router.route("/:userId/getallorderoftheuser"),get(authorization,getallordersoftheuser);
 
 
 

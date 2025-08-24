@@ -205,10 +205,97 @@ const gettherespectiveorderdetailswithorderid = asynchandler(async(req,res)=>{
     )
 });
 
+const gettheorderstatuswithorderid = asynchandler(async(req,res)=>{
+    const {orderId} = req.params;
+
+    if(!orderId){
+        throw new apierror(400,"orderid is required");
+    }
+
+    const order = await Order.findById(orderId);
+
+    if(!order){
+        throw new apierror(404,"order not found");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,{orderstatus:order.orderstatus},"order status fetched successfully")
+    )
+
+});
+
+
+const getallordersoftheuser = asynchandler(async(req,res)=>{
+    const {userId} = req.params;
+
+    if(!userId){
+        throw new apierror(400,"userid not recived");
+    }
+
+    const user = await User.findById(userId).select(
+        "-password -refreshtoken"
+    )
+
+    if(!user){
+        throw new apierror(404,"user not found");
+    }
+
+    const allorders = await Order.aggregate([
+        {
+            $match:{
+                user:new mongoose.Types.ObjectId(userId),
+            }
+        },
+        {
+            $lookup:{
+                from:"products",
+                localField:"orderitems.products",
+                foreignField: "_id",
+                as: "productdetails"
+            }
+        },
+        {
+            $project:{
+                user:1,
+                orderitems:1,
+                shippinginfo:1,
+                totalamount:1,
+                orderstatus:1,
+                deliveredat:1,
+                comment:1,
+                createdAt: 1,
+                updatedAt: 1,
+                productdetails:{
+                    name:1,
+                    description:1,
+                    image:1,
+                    images:1,
+                    brand:1,
+                    price:1,
+                    owner:1,
+                }
+            }
+        }
+    ]);
+
+    if(!allorders || allorders.length===0){
+        throw new apierror(400,"there are no order of the user");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,{
+            userinfo:user,
+            allorders:allorders
+        })
+    )
+})
 
 
 
 
 
 
-module.exports = {publishaorder,getthetotalamountoftheorderwithorderid,updatetheorderstatus,gettherespectiveorderdetailswithorderid};
+
+
+
+module.exports = {publishaorder,getthetotalamountoftheorderwithorderid,updatetheorderstatus,gettherespectiveorderdetailswithorderid,gettheorderstatuswithorderid,getallordersoftheuser};
