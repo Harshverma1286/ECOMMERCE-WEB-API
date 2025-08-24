@@ -290,6 +290,25 @@ const getallordersoftheuser = asynchandler(async(req,res)=>{
     )
 })
 
+const getdeleviredatdateoftheorder = asynchandler(async(req,res)=>{
+    const {orderId} = req.params;
+
+    if(!orderId){
+        throw new apierror(400,"order id not recived");
+    }
+
+
+    const order = await Order.findById(orderId);
+
+    if(!order){
+        throw new apierror(404,"order not found");
+    }
+
+
+    return res.status(200).json(
+        new apiresponse(200,{delvereddate:order.deliveredat},"delivereddatefetched successfully")
+    )
+})
 
 
 
@@ -298,4 +317,5 @@ const getallordersoftheuser = asynchandler(async(req,res)=>{
 
 
 
-module.exports = {publishaorder,getthetotalamountoftheorderwithorderid,updatetheorderstatus,gettherespectiveorderdetailswithorderid,gettheorderstatuswithorderid,getallordersoftheuser};
+
+module.exports = {publishaorder,getthetotalamountoftheorderwithorderid,updatetheorderstatus,gettherespectiveorderdetailswithorderid,gettheorderstatuswithorderid,getallordersoftheuser,getdeleviredatdateoftheorder};
