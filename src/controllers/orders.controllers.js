@@ -310,6 +310,53 @@ const getdeleviredatdateoftheorder = asynchandler(async(req,res)=>{
     )
 })
 
+const getcommentoftherespectiveorder = asynchandler(async(req,res)=>{
+    const {orderId} = req.params;
+
+    if(!orderId){
+        throw new apierror(400,"order id is not recived");
+    }
+
+    const order = await Order.findById(orderId);
+
+    if(!order){
+        throw new apierror(404,"order does not exist");
+    }
+
+    if(req.user._id.toString()!==order.user.toString() && !req.user.isadmin){
+        throw new apierror(400,"user not permitted to get it");
+    }
+
+    if(order.comment===""){
+        throw new apierror(400,"there is no comment in the order");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,{comment:order.comment},"orders comment fetched successfully")
+    )
+});
+
+const getshippinginfooftherespectiveorder = asynchandler(async(req,res)=>{
+    const {orderId} = req.params;
+
+    if(!orderId){
+        throw new apierror(400,"order id not recived");
+    }
+
+    const order = await Order.findById(orderId);
+
+    if(!order){
+        throw new apierror(404,"order not found");
+    }
+
+    if(req.user._id.toString()!==order.user.toString() && !req.user.isadmin){
+        throw new apierror(400,"user not permitted to get it");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,{shippinginfo:order.shippinginfo},"shipping info fetched successfully")
+    )
+});
 
 
 
@@ -318,4 +365,12 @@ const getdeleviredatdateoftheorder = asynchandler(async(req,res)=>{
 
 
 
-module.exports = {publishaorder,getthetotalamountoftheorderwithorderid,updatetheorderstatus,gettherespectiveorderdetailswithorderid,gettheorderstatuswithorderid,getallordersoftheuser,getdeleviredatdateoftheorder};
+
+module.exports = {publishaorder
+    ,getthetotalamountoftheorderwithorderid
+    ,updatetheorderstatus,gettherespectiveorderdetailswithorderid
+    ,gettheorderstatuswithorderid
+    ,getallordersoftheuser
+    ,getdeleviredatdateoftheorder
+    ,getcommentoftherespectiveorder
+    ,getshippinginfooftherespectiveorder};

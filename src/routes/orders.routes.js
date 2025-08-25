@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { publishaorder, getthetotalamountoftheorderwithorderid, updatetheorderstatus, gettherespectiveorderdetailswithorderid, gettheorderstatuswithorderid, getallordersoftheuser, getdeleviredatdateoftheorder } = require("../controllers/orders.controllers");
+const { publishaorder, getthetotalamountoftheorderwithorderid, updatetheorderstatus, gettherespectiveorderdetailswithorderid, gettheorderstatuswithorderid, getallordersoftheuser, getdeleviredatdateoftheorder, getcommentoftherespectiveorder, getshippinginfooftherespectiveorder } = require("../controllers/orders.controllers");
 
 const authorization = require('../middlewares/authorization.middlewares');
 
@@ -19,6 +19,10 @@ router.route("/:orderId/getorderstatus").get(authorization,gettheorderstatuswith
 router.route("/:userId/getallorderoftheuser").get(authorization,getallordersoftheuser);
 
 router.route("/:orderId/Getdelivereddate").get(authorization,getdeleviredatdateoftheorder);
+
+router.route("/:orderId/getcommentoftheorder").get(authorization,getcommentoftherespectiveorder);
+
+router.route("/:orderId/getshippinfoofarespectiveorder").get(authorization,getshippinginfooftherespectiveorder);
 
 
 
