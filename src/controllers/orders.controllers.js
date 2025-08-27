@@ -359,6 +359,70 @@ const getshippinginfooftherespectiveorder = asynchandler(async(req,res)=>{
 });
 
 
+const getallorderwithstatus = asynchandler(async(req,res)=>{
+    const {orderstatus} = req.params;
+
+    if(!orderstatus){
+        throw new apierror(400,"status not fetched");
+    }
+
+
+    const getallorder = await Order.aggregate([
+        {
+            $match:{
+                orderstatus:orderstatus,
+            }
+        },
+        {
+            $lookup:{
+                from:"users",
+                localField:"user",
+                foreignField: "_id",
+                as: "userdetails"
+            }
+        },
+        {
+            $lookup:{
+                from:"products",
+                localField:"orderitems.product",
+                foreignField: "_id",
+                as: "productdetails"
+            }
+        },
+        {
+            $project:{
+                orderstatus: 1,
+                totalamount: 1,
+                createdAt: 1,
+                userdetails:{
+                    username:1,
+                    email:1,
+                    avatar:1,
+                },
+                productdetails:{
+                    name:1,
+                    description:1,
+                    image:1,
+                    images:1,
+                    brand:1,
+                    price:1,
+                    owner:1,
+                }
+            }
+        }
+    ])
+
+    if(!getallorder || getallorder.length===0){
+        throw new apierror(404,"there are no orders with the respective status");
+    }
+
+
+    return res.status(200).json(
+        new apiresponse(200,getallorder,"all the order with respective status fetched successfully")
+    )
+});
+
+
 
 
 
@@ -373,4 +437,5 @@ module.exports = {publishaorder
     ,getallordersoftheuser
     ,getdeleviredatdateoftheorder
     ,getcommentoftherespectiveorder
-    ,getshippinginfooftherespectiveorder};
+    ,getshippinginfooftherespectiveorder
+    ,getallorderwithstatus};
