@@ -26,6 +26,8 @@ const reviewrouter = require("./routes/review.routes");
 
 const orderrouter = require("./routes/orders.routes");
 
+const wishlistrouter = require("./routes/wishlist.routes");
+
 
 app.use("/api/v1/users",userrouter);
 
@@ -36,6 +38,8 @@ app.use("/api/v1/category",categoryrouter);
 app.use("/api/v1/reviews",reviewrouter);
 
 app.use("/api/v1/order",orderrouter);
+
+app.use("/api/v1/wishlist",wishlistrouter);
 
 
 module.exports = app;
