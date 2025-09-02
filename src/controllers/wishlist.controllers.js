@@ -50,5 +50,50 @@ const createthewishlist = asynchandler(async(req,res)=>{
 
 });
 
+const addaproductinthewishlist = asynchandler(async(req,res)=>{
+    const {wishlistId,productId} = req.params;
 
-module.exports = {createthewishlist};
+    if(!wishlistId){
+        throw new apierror(400,"wishlist id is required");
+    }
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+
+    const wishlist = await Wishlist.findById(wishlistId);
+
+    if(!wishlist){
+        throw new apierror(404,"wishlist does not exist");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(404,"product not found");
+    }
+
+
+   if(wishlist.products.some(p=>p.toString()===productId)){
+    throw new apierror(400,"product already exist in the wishlist");
+   }
+
+    if(wishlist.user.toString()!==req.user._id.toString()){
+        throw new apierror(403,"access denied");
+    }
+
+    wishlist.products.push(productId);
+
+    await wishlist.save();
+
+
+    return res.status(200).json(
+        new apiresponse(200,wishlist,"products added in the wishlist successfully")
+    )
+})
+
+
+module.exports = {createthewishlist,
+    addaproductinthewishlist,
+};
