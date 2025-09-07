@@ -136,8 +136,51 @@ const removeaproductfromthewishlist = asynchandler(async(req,res)=>{
 
 });
 
+const getalltheproductsintthewishlist = asynchandler(async(req,res)=>{
+    const {wishlistId} = req.params;
+
+    if(!wishlistId){
+        throw new apierror(400,"wishlist id is required");
+    }
+
+    const wishlist = await Wishlist.findById(wishlistId);
+
+    if(!wishlist){
+        throw new apierror(404,"wishlist does not exist");
+    }
+
+    const productdetails = Wishlist.aggregate([
+        {
+            $match:{_id:new mongoose.Schema.Types.ObjectId(wishlistId)},
+        },
+        {
+            $lookup: {
+                from: "products",         
+                localField: "products",       
+                foreignField: "_id",          
+                as: "productDetails"         
+            }
+        },
+        {
+            $project:{
+                _id:0,
+                productdetails:1,
+            }
+        }
+    ])
+
+    if(!productdetails || productdetails.length===0){
+        throw new apierror(404,"there are no products in the wishlist");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,productdetails,"fetched all the product details in the product")
+    )
+
+});
 
 module.exports = {createthewishlist,
     addaproductinthewishlist,
     removeaproductfromthewishlist,
+    getalltheproductsintthewishlist,
 };

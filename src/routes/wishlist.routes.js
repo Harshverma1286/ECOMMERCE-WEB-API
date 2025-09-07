@@ -4,7 +4,7 @@ const router = express.Router();
 
 const authorization = require("../middlewares/authorization.middlewares");
 
-const { createthewishlist, addaproductinthewishlist, removeaproductfromthewishlist } = require("../controllers/wishlist.controllers");
+const { createthewishlist, addaproductinthewishlist, removeaproductfromthewishlist, getalltheproductsintthewishlist } = require("../controllers/wishlist.controllers");
 
 
 
@@ -17,5 +17,7 @@ router.delete(
     authorization,
     removeaproductfromthewishlist
 );
+
+router.route("/:wishlistId/getalltheproductsdetailsinthewishlist").get(authorization,getalltheproductsintthewishlist);
 
 module.exports = router;
