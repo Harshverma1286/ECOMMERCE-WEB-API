@@ -179,8 +179,29 @@ const getalltheproductsintthewishlist = asynchandler(async(req,res)=>{
 
 });
 
+const gettheuserfromthewishlist = asynchandler(async(req,res)=>{
+    const{wishlistId} = req.params;
+
+    if(!wishlistId){
+        throw new apierror(400,"wishlist id is required");
+    }
+
+    const wishlist = await Wishlist.findById(wishlistId)
+        .populate("user", "-password -refreshtoken");
+
+
+    if(!wishlist){
+        throw new apierror(404,"wishlist not found");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,{user:wishlist.user},"user fetched successfully")
+    )
+})
+
 module.exports = {createthewishlist,
     addaproductinthewishlist,
     removeaproductfromthewishlist,
     getalltheproductsintthewishlist,
+    gettheuserfromthewishlist,
 };
