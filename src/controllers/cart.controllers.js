@@ -77,5 +77,28 @@ const createacart = asynchandler(async(req,res)=>{
     )
 });
 
+const getalltheitemsinthecart = asynchandler(async(req,res)=>{
+    const {cartID} = req.params;
 
-module.exports = {addaproductinthecart,createacart};
+    if(!cartID){
+        throw new apierror(400,"cart id is required");
+    }
+
+    const cart = await Cart.findById(cartID).populate({
+        path: "items.product",
+        select: "name price image brand countinstock",
+    });
+
+    if(!cart){
+        throw new apierror(404,"cart not found");
+    }
+
+    return res.status(200).json(
+        new apiresponse(200,cart,"cart details fetched successfully")
+    )
+
+
+})
+
+
+module.exports = {addaproductinthecart,createacart,getalltheitemsinthecart};
