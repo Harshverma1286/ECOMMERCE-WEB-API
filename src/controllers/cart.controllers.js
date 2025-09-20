@@ -100,5 +100,49 @@ const getalltheitemsinthecart = asynchandler(async(req,res)=>{
 
 })
 
+const removeaproductformthecart = asynchandler(async(req,res)=>{
+    const {cartID,productId} = req.params;
 
-module.exports = {addaproductinthecart,createacart,getalltheitemsinthecart};
+    if(!cartID){
+        throw new apierror(400,"cartId is required");
+    }
+
+    if(!productId){
+        throw new apierror(400,"product id is required");
+    }
+
+    const cart = await Cart.findById(cartID);
+
+    if(!cart){
+        throw new apierror(404,"cart not found");
+    }
+
+    const product = await Product.findById(productId);
+
+    if(!product){
+        throw new apierror(400,"product not found");
+    }
+
+    const check = cart.items.some((prod)=>{
+        return prod.product._id.toString()===productId.toString()
+    })
+
+    if(!check){
+        throw new apierror(404,"product you want to delete does not exist in the card");
+    }
+
+    const cartitems = cart.items.filter((prod)=>{
+        return prod.product._id.toString()!==productId.toString();
+    })
+
+    cart.items = cartitems;
+
+    await cart.save();
+
+    return res.status(200).json(
+        new apiresponse(200,cartitems,"cart item removed successfully")
+    )
+});
+
+
+module.exports = {addaproductinthecart,createacart,getalltheitemsinthecart,removeaproductformthecart};
